@@ -24,7 +24,7 @@ namespace HRMS.Controllers
         public IActionResult GetByCriteria(String? name, int? floorNumber)
         {
             var data = from department in departments
-                       where (name == null || department.name == name)
+                       where (name == null || department.name.ToUpper() == name.ToUpper())
                        orderby department.id
                        select new DepartmentsDto
                        {

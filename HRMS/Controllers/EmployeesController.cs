@@ -29,17 +29,18 @@ namespace HRMS.Controllers
         //U--->update
         //D-->Delete
         [HttpGet("GetByCriteria")]
-        public IActionResult GetByCriteria(string? position)
+        public IActionResult GetByCriteria([FromQuery]SearchEmployeeDto employeeDto)
         {
             var data = from employee in employees
-                       where (position == null || employee.position == position)
+                       where (employeeDto.Position == null || employee.position.ToUpper().Contains(employeeDto.Position.ToUpper()))&&
+                       (employeeDto.Name==null|| employee.firstName.ToUpper().Contains(employeeDto.Name.ToUpper()))
                        orderby employee.id
                        select new EmployeeDto
                        {
                            id = employee.id,
                            //firstName=employee.firstName,
                            //lastName=employee.lastName,
-                           name = employee.firstName = " " + employee.lastName,
+                           name = employee.firstName + " " + employee.lastName,
                            position = employee.position,
                            birthdate = employee.birthdate,
                            startDate = employee.startDate,
