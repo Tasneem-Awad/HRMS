@@ -1,4 +1,5 @@
-﻿using HRMS.Dtos.Employee;
+﻿using HRMS.DbContexts;
+using HRMS.Dtos.Employee;
 using HRMS.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,12 @@ namespace HRMS.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
+        private readonly HRMSContext _dbContext;
+        public EmployeesController(HRMSContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public static List<Employee> employees = new List<Employee>()
         {
             new Employee(){id=1,firstName="ahmad",lastName="naser",email="hghg@djdj",position="developer",birthdate=new DateTime(2000,1,25),isActive=true,startDate=new DateTime(2026,3,3)},
@@ -31,7 +38,7 @@ namespace HRMS.Controllers
         [HttpGet("GetByCriteria")]
         public IActionResult GetByCriteria([FromQuery]SearchEmployeeDto employeeDto)
         {
-            var data = from employee in employees
+            var data = from employee in _dbContext.Employees
                        where (employeeDto.Position == null || employee.position.ToUpper().Contains(employeeDto.Position.ToUpper()))&&
                        (employeeDto.Name==null|| employee.firstName.ToUpper().Contains(employeeDto.Name.ToUpper()))
                        orderby employee.id

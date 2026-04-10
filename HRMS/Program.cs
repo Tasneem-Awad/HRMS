@@ -1,3 +1,6 @@
+using HRMS.DbContexts;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,6 +11,9 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//DbContext object
+builder.Services.AddDbContext<HRMSContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("HRMSContext")));
 
 var app = builder.Build();
 
