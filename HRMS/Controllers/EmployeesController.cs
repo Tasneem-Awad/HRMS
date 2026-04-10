@@ -39,7 +39,7 @@ namespace HRMS.Controllers
         public IActionResult GetByCriteria([FromQuery]SearchEmployeeDto employeeDto)
         {
             var data = from employee in _dbContext.Employees
-                       from department in _dbContext.Departments.Where(x=>x.id==employee.DepartmentId).DefaultIfEmpty()//left join
+                       //from department in _dbContext.Departments.Where(x=>x.id==employee.DepartmentId).DefaultIfEmpty()//left join
                        from manager in _dbContext.Employees.Where(x=>x.id==employee.ManagerId).DefaultIfEmpty()
                        where (employeeDto.Position == null || employee.position.ToUpper().Contains(employeeDto.Position.ToUpper()))&&
                        (employeeDto.Name==null|| employee.firstName.ToUpper().Contains(employeeDto.Name.ToUpper()))
@@ -55,7 +55,7 @@ namespace HRMS.Controllers
                            startDate = employee.startDate,
                            endDate = employee.endDate,
                            DepartmentId=employee.DepartmentId,
-                           DepartmentName= department.name,
+                           //DepartmentName= department.name,
                            ManagerId=employee.ManagerId,
                            ManagerName=manager.firstName
                        };

@@ -1,4 +1,6 @@
-﻿namespace HRMS.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HRMS.Models
 {
     public class Employee //Model
     {
@@ -13,7 +15,11 @@
         public DateTime startDate { get; set; }
         public DateTime? endDate { get; set; }
         public decimal? salary {  get; set; }
+        [ForeignKey("Department")]
         public long? DepartmentId { get; set; }
+        public Department? Department { get; set; }
+        [ForeignKey("Manager")]
         public long? ManagerId { get; set; }
+        public Employee? Manager { get; set; }
     }
 }
