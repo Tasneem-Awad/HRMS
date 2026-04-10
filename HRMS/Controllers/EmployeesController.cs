@@ -39,6 +39,8 @@ namespace HRMS.Controllers
         public IActionResult GetByCriteria([FromQuery]SearchEmployeeDto employeeDto)
         {
             var data = from employee in _dbContext.Employees
+                       from department in _dbContext.Departments.Where(x=>x.id==employee.DepartmentId).DefaultIfEmpty()//left join
+                       from manager in _dbContext.Employees.Where(x=>x.id==employee.ManagerId).DefaultIfEmpty()
                        where (employeeDto.Position == null || employee.position.ToUpper().Contains(employeeDto.Position.ToUpper()))&&
                        (employeeDto.Name==null|| employee.firstName.ToUpper().Contains(employeeDto.Name.ToUpper()))
                        orderby employee.id
@@ -51,8 +53,11 @@ namespace HRMS.Controllers
                            position = employee.position,
                            birthdate = employee.birthdate,
                            startDate = employee.startDate,
-                           endDate = employee.endDate
-
+                           endDate = employee.endDate,
+                           DepartmentId=employee.DepartmentId,
+                           DepartmentName= department.name,
+                           ManagerId=employee.ManagerId,
+                           ManagerName=manager.firstName
                        };
             return Ok(data);
             // return StatusCode(200, new { Name = "ahmad", position = "developer" });
@@ -63,14 +68,35 @@ namespace HRMS.Controllers
         [HttpGet("{id}")]//Route parameter
         public IActionResult GetById(long id)
         {
-            var data = employees.Select(employee => new EmployeeDto
+            //var data=_dbContext.Employees.Join(
+            //    _dbContext.Departments,
+            //    employee=>employee.DepartmentId,
+            //    department=> department.id,
+            //    (employee,department)=>new EmployeeDto
+            //    {
+            //        id = employee.id,
+            //        name = employee.firstName + " " + employee.lastName,
+            //        position = employee.position,
+            //        birthdate = employee.birthdate,
+            //        startdate = employee.startdate,
+            //        enddate = employee.enddate,
+            //        departmentid = employee.departmentid,
+            //        departmentname = department.name,
+
+            //    }
+            //    ).firstordefault(x => x.id == id);
+            var data = _dbContext.Employees.Select(employee => new EmployeeDto
             {
                 id = employee.id,
                 name = employee.firstName + " " + employee.lastName,
                 position = employee.position,
                 birthdate = employee.birthdate,
                 startDate = employee.startDate,
-                endDate = employee.endDate
+                endDate = employee.endDate,
+                DepartmentId = employee.DepartmentId,
+                //departmentname = Department.name,
+                ManagerId = employee.ManagerId,
+               // managername = manager.firstname
 
 
             }).FirstOrDefault(x => x.id == id);
@@ -86,7 +112,7 @@ namespace HRMS.Controllers
         {
             var newEmployee = new Employee()
             {
-                id = (employees.LastOrDefault()?.id ?? 0) + 1,
+                id =0,// (employees.LastOrDefault()?.id ?? 0) + 1,
                 firstName = employee.firstName,
                 lastName = employee.lastName,
                 position = employee.position,
@@ -97,8 +123,11 @@ namespace HRMS.Controllers
                 isActive = employee.isActive,
                 phone = employee.phone,
                 salary = employee.salary,
+                DepartmentId= employee.DepartmentId,
+                ManagerId= employee.ManagerId
             };
-            employees.Add(newEmployee);
+            _dbContext.Employees.Add(newEmployee);
+            _dbContext.SaveChanges();
             return Ok(newEmployee.id);
         }
         [HttpPut]
@@ -106,7 +135,7 @@ namespace HRMS.Controllers
         {
             // var employee = employees.Any(x => x.id == employeeDto.id);=> Any is bool
 
-            var employee = employees.FirstOrDefault(x => x.id == employeeDto.id);
+            var employee = _dbContext.Employees.FirstOrDefault(x => x.id == employeeDto.id);
             if (employee == null)
             {
                 return NotFound("employee does not exist");
@@ -121,19 +150,22 @@ namespace HRMS.Controllers
             employee.phone = employeeDto.phone;
             employee.salary = employeeDto.salary;
             employee.birthdate = employeeDto.birthdate;
-
+            employee.DepartmentId = employeeDto.DepartmentId;
+            employee.ManagerId = employeeDto.ManagerId;
+            _dbContext.SaveChanges();
             return Ok();
 
         }
         [HttpDelete]
         public IActionResult Delete(long id)
         {
-            var employee = employees.FirstOrDefault(x => x.id == id);
+            var employee = _dbContext.Employees.FirstOrDefault(x => x.id == id);
             if (employee == null)
             {
                 return NotFound("employee does nt exist");
             }
-            employees.Remove(employee);
+            _dbContext.Employees.Remove(employee);
+            _dbContext.SaveChanges();
             return Ok();
         }
 

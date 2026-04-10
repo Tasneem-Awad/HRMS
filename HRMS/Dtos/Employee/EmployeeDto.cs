@@ -10,6 +10,10 @@
         public DateTime birthdate { get; set; }
         public DateTime startDate { get; set; }
         public DateTime? endDate { get; set; }
+        public long? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
+        public long? ManagerId { get; set; }
+        public string ManagerName { get; set; }
 
 
 
