@@ -4,6 +4,7 @@ using HRMS.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRMS.Migrations
 {
     [DbContext(typeof(HRMSContext))]
-    partial class HRMSContextModelSnapshot : ModelSnapshot
+    [Migration("20260411100902_max_length_string")]
+    partial class max_length_string
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,8 +90,9 @@ namespace HRMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("positionId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("position")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("salary")
                         .HasColumnType("decimal(18,2)");
@@ -102,91 +106,7 @@ namespace HRMS.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.HasIndex("positionId");
-
                     b.ToTable("Employees");
-                });
-
-            modelBuilder.Entity("HRMS.Models.Lookup", b =>
-                {
-                    b.Property<long>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
-
-                    b.Property<int>("magerCode")
-                        .HasColumnType("int");
-
-                    b.Property<int>("minerCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("id");
-
-                    b.ToTable("Lookups");
-
-                    b.HasData(
-                        new
-                        {
-                            id = 1L,
-                            magerCode = 0,
-                            minerCode = 0,
-                            name = "Employees position"
-                        },
-                        new
-                        {
-                            id = 2L,
-                            magerCode = 0,
-                            minerCode = 0,
-                            name = "Manager"
-                        },
-                        new
-                        {
-                            id = 3L,
-                            magerCode = 0,
-                            minerCode = 1,
-                            name = "Developer"
-                        },
-                        new
-                        {
-                            id = 4L,
-                            magerCode = 0,
-                            minerCode = 2,
-                            name = "HR"
-                        },
-                        new
-                        {
-                            id = 5L,
-                            magerCode = 1,
-                            minerCode = 0,
-                            name = "Department name"
-                        },
-                        new
-                        {
-                            id = 6L,
-                            magerCode = 1,
-                            minerCode = 1,
-                            name = "Finance"
-                        },
-                        new
-                        {
-                            id = 7L,
-                            magerCode = 1,
-                            minerCode = 2,
-                            name = "Adminstrative"
-                        },
-                        new
-                        {
-                            id = 8L,
-                            magerCode = 1,
-                            minerCode = 3,
-                            name = "Technical"
-                        });
                 });
 
             modelBuilder.Entity("HRMS.Models.Employee", b =>
@@ -199,13 +119,7 @@ namespace HRMS.Migrations
                         .WithMany()
                         .HasForeignKey("ManagerId");
 
-                    b.HasOne("HRMS.Models.Lookup", "Lookup")
-                        .WithMany()
-                        .HasForeignKey("positionId");
-
                     b.Navigation("Department");
-
-                    b.Navigation("Lookup");
 
                     b.Navigation("Manager");
                 });

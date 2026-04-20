@@ -6,7 +6,7 @@
         public string firstName { get; set; }
         public string lastName { get; set; }
         public string email { get; set; }
-        public string position { get; set; }
+        public long? PositionId { get; set; }
         public DateTime birthdate { get; set; }
         public string phone { get; set; }//+69279828,078
         public bool isActive { get; set; }

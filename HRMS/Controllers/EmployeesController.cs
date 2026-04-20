@@ -3,6 +3,7 @@ using HRMS.Dtos.Employee;
 using HRMS.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Console;
 using System.Xml.Linq;
 namespace HRMS.Controllers
@@ -18,14 +19,14 @@ namespace HRMS.Controllers
             _dbContext = dbContext;
         }
 
-        public static List<Employee> employees = new List<Employee>()
+       /* public static List<Employee> employees = new List<Employee>()
         {
             new Employee(){id=1,firstName="ahmad",lastName="naser",email="hghg@djdj",position="developer",birthdate=new DateTime(2000,1,25),isActive=true,startDate=new DateTime(2026,3,3)},
             new Employee(){id=2,firstName="tasneem",lastName="ewad",email="tas@djdj",position="hr",birthdate=new DateTime(2003,1,25),isActive=true,startDate=new DateTime(2026,3,3)},
             new Employee(){id=3,firstName="ali",lastName="sami",email="ali@djdj",position="manager",birthdate=new DateTime(1999,1,25),isActive=true,startDate=new DateTime(2026,3,3)},
             new Employee(){id=4,firstName="yaser",lastName="rami",email="yaser@djdj",position="developer",birthdate=new DateTime(1997,1,25),isActive=true,startDate=new DateTime(2026,3,3)}
 
-        };
+        };*/
         //Endpoint(method)
         //must be public
         //swagger
@@ -39,9 +40,10 @@ namespace HRMS.Controllers
         public IActionResult GetByCriteria([FromQuery]SearchEmployeeDto employeeDto)
         {
             var data = from employee in _dbContext.Employees
-                       //from department in _dbContext.Departments.Where(x=>x.id==employee.DepartmentId).DefaultIfEmpty()//left join
+                       from department in _dbContext.Departments.Where(x=>x.id==employee.DepartmentId).DefaultIfEmpty()//left join
                        from manager in _dbContext.Employees.Where(x=>x.id==employee.ManagerId).DefaultIfEmpty()
-                       where (employeeDto.Position == null || employee.position.ToUpper().Contains(employeeDto.Position.ToUpper()))&&
+                       from lookup in _dbContext.Lookups.Where(x=> x.id==employee.positionId).DefaultIfEmpty()
+                       where (employeeDto.PositionId == null || employee.positionId==employeeDto.PositionId)&&
                        (employeeDto.Name==null|| employee.firstName.ToUpper().Contains(employeeDto.Name.ToUpper()))
                        orderby employee.id
                        select new EmployeeDto
@@ -50,12 +52,13 @@ namespace HRMS.Controllers
                            //firstName=employee.firstName,
                            //lastName=employee.lastName,
                            name = employee.firstName + " " + employee.lastName,
-                           position = employee.position,
+                           PositionId = employee.positionId,
+                           PositionName=lookup.name,
                            birthdate = employee.birthdate,
                            startDate = employee.startDate,
                            endDate = employee.endDate,
                            DepartmentId=employee.DepartmentId,
-                           //DepartmentName= department.name,
+                           DepartmentName= department.name,
                            ManagerId=employee.ManagerId,
                            ManagerName=manager.firstName
                        };
@@ -89,18 +92,22 @@ namespace HRMS.Controllers
             {
                 id = employee.id,
                 name = employee.firstName + " " + employee.lastName,
-                position = employee.position,
+                PositionId = employee.positionId,
+                PositionName=employee.Lookup.name,
                 birthdate = employee.birthdate,
                 startDate = employee.startDate,
                 endDate = employee.endDate,
                 DepartmentId = employee.DepartmentId,
-                //departmentname = Department.name,
-                ManagerId = employee.ManagerId,
-               // managername = manager.firstname
+                DepartmentName = employee.Department.name,
+                ManagerName = employee.Manager.firstName
+                // managername = manager.firstname
 
 
             }).FirstOrDefault(x => x.id == id);
             //var data = employees.SingleOrDefault(x => x.id == id);
+            //var data = _dbContext.Employees.Include(x => x.Department).FirstOrDefault(x => x.id == id);
+            //Include ==>Eager loading 
+
             if (data == null)
             {
                 return NotFound("employee not found");
@@ -115,7 +122,7 @@ namespace HRMS.Controllers
                 id =0,// (employees.LastOrDefault()?.id ?? 0) + 1,
                 firstName = employee.firstName,
                 lastName = employee.lastName,
-                position = employee.position,
+                positionId = employee.PositionId,
                 birthdate = employee.birthdate,
                 startDate = employee.startDate,
                 endDate = employee.endDate,
@@ -142,7 +149,7 @@ namespace HRMS.Controllers
             }
             employee.firstName = employeeDto.firstName;
             employee.lastName = employeeDto.lastName;
-            employee.position = employeeDto.position;
+            employee.positionId = employeeDto.PositionId;
             employee.startDate = employeeDto.startDate;
             employee.endDate = employeeDto.endDate;
             employee.email = employeeDto.email;
